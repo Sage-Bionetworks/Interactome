@@ -7,10 +7,15 @@ angular.module('interactomeApp', [
   'ngRoute'
   //'bootstrap.js'
 ])
+
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
+        controller: 'MainCtrl'
+      })
+      .when('/view2', {
+        templateUrl: 'views/viewalt.html',
         controller: 'MainCtrl'
       })
       .otherwise({
