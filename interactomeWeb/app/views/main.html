@@ -21,7 +21,7 @@
           </button>
           <ul id="dropDownMenu" class="dropdown-menu">
             <li><a href="#searching">Folder 1</a></li>
-            <li><a href="#/view2">Different Site Template</a></li>
+            <li><a href="#/view2">Different Template</a></li>
             <li><a href="#">Folder 3</a></li>
             <li><a href="#">Folder 4</a></li>
           </ul>
@@ -29,7 +29,8 @@
         </div>
       </div>
       <br></br>
-      
+
+      <!--Google+ Signin button -->
       <span
         class="g-signin"
         data-callback="signinCallback" // This will call the script which will connect to AWS
@@ -62,6 +63,8 @@
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
     })();
 </script>
+
+<!-- Google script -->
 
 <script>
   function signinCallback(authResult) {
