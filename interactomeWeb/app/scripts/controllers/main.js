@@ -69,11 +69,11 @@ app.controller('MainCtrl', function($scope, $rootScope, UserService, AwsService,
     // Listen for broadcasts of a token changing (this means AWS resources are available)
     var cleanupToken = $rootScope.$on(AwsService.tokenSetBroadcast, function() {
         var uName = UserService.currentUsername();
-        UserService.getDynamoPref(uName).then(function(dbItem){
-            for(var i = 0; i < dbItem.Item.Likes.SS.length; i++){
+        UserService.getDynamoPref(uName).then(function(dbItem) {
+            for (var i = 0; i < dbItem.Item.Likes.SS.length; i++) {
                 $scope.likes[i] = dbItem.Item.Likes.SS[i];
             }
-            for(var i = 0; i < dbItem.Item.Dislikes.SS.length; i++){
+            for (var i = 0; i < dbItem.Item.Dislikes.SS.length; i++) {
                 $scope.dislikes[i] = dbItem.Item.Dislikes.SS[i];
             }
 
@@ -82,7 +82,7 @@ app.controller('MainCtrl', function($scope, $rootScope, UserService, AwsService,
                 $scope.papers.push.apply($scope.papers, paperList);
             });
         });
-        
+
     });
 
     //Unsubscribe (from http://stackoverflow.com/questions/18856341/how-can-i-unregister-a-broadcast-event-to-rootscope-in-angularjs)
@@ -108,7 +108,7 @@ app.controller('SearchCtrl', function($scope, $location, SearchService) {
     Controls the elements in the header (search bar, sign in).
 */
 app.controller('HeaderCtrl', function($scope, $rootScope, $timeout, $location, UserService, AwsService) {
-    
+
     $scope.userTopics = [];
     $scope.newTopic = null;
     // This function sets the user authentication from googleSignin directive. 
@@ -138,16 +138,22 @@ app.controller('HeaderCtrl', function($scope, $rootScope, $timeout, $location, U
 
     $scope.addTopic = function() {
         var username = UserService.currentUsername();
-        var newTopic = {Name: $scope.newTopic};
+        var newTopic = {
+            Name: $scope.newTopic
+        };
         var scope = $scope;
         AwsService.addTopic(username, $scope.newTopic).then(
             function() {
                 scope.userTopics.push(newTopic);
-                scope.userTopics.sort(function(a,b) {
-                    return (a['Name'].localeCompare(b['Name'], 'kn', {numeric: true, caseFirst: "lower", usage: "sort"}) >= 0);
+                scope.userTopics.sort(function(a, b) {
+                    return (a['Name'].localeCompare(b['Name'], 'kn', {
+                        numeric: true,
+                        caseFirst: "lower",
+                        usage: "sort"
+                    }) >= 0);
                 });
                 console.log(scope.userTopics);
-            }, 
+            },
             function(reason) {
                 alert(reason);
             }

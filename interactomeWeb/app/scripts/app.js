@@ -19,6 +19,14 @@ app.config(function(AwsServiceProvider) {
 
 
 
+// Has to do with csrf tokens for CORS
+app.config(['$httpProvider',
+    function($httpProvider) {
+        $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+        $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    }
+]);
+
 // Sets up main route to main.html when page is first loaded. 
 app.config(
     function($routeProvider) {
@@ -34,12 +42,7 @@ app.config(
 
 
             })
-        /*
-            .otherwise({
-                redirectTo: 'views/main.html',
-                controller: 'MainCtrl'
-            });
-*/
+
     });
 
 window.onLoadCallback = function() {
