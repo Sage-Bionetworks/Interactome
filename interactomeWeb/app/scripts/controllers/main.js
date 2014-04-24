@@ -69,11 +69,11 @@ app.controller('MainCtrl', function($scope, UserService, AwsService, Recommendat
     // Setup by using AWS credentials
     AwsService.credentials().then(function() {
         var uName = UserService.currentUsername();
-        AwsService.getDynamoPref(uName).then(function(dbItem){
-            for(var i = 0; i < dbItem.Item.Likes.SS.length; i++){
+        AwsService.getDynamoPref(uName).then(function(dbItem) {
+            for (var i = 0; i < dbItem.Item.Likes.SS.length; i++) {
                 $scope.likes[i] = dbItem.Item.Likes.SS[i];
             }
-            for(var i = 0; i < dbItem.Item.Dislikes.SS.length; i++){
+            for (var i = 0; i < dbItem.Item.Dislikes.SS.length; i++) {
                 $scope.dislikes[i] = dbItem.Item.Dislikes.SS[i];
             }
 
@@ -82,7 +82,7 @@ app.controller('MainCtrl', function($scope, UserService, AwsService, Recommendat
                 $scope.papers.push.apply($scope.papers, paperList);
             });
         });
-        
+
     });
 });
 
@@ -100,15 +100,15 @@ app.controller('SearchCtrl', function($scope, $location, SearchService) {
     Controls the elements in the header (search bar, sign in).
 */
 app.controller('HeaderCtrl', function($scope, $location, UserService, AwsService) {
-    
+
     $scope.userTopics = [];
     $scope.newTopic = null;
     // This function sets the user authentication from googleSignin directive. 
     $scope.signedIn = function(oauth) {
         // Google authentication passed into userService to hold onto and track user.
         UserService.setCurrentOAuthUser(oauth).then(function(user) {
-                $scope.user = user;
-            });
+            $scope.user = user;
+        });
     };
 
     $scope.searchSubmit = function() {
@@ -130,17 +130,23 @@ app.controller('HeaderCtrl', function($scope, $location, UserService, AwsService
 
     $scope.addTopic = function() {
         var username = UserService.currentUsername();
-        var newTopic = {Name: $scope.newTopic};
+        var newTopic = {
+            Name: $scope.newTopic
+        };
         var scope = $scope;
         AwsService.addTopic(username, $scope.newTopic).then(
             function(topicId) {
                 newTopic.Id = topicId;
                 scope.userTopics.push(newTopic);
-                scope.userTopics.sort(function(a,b) {
-                    return (a['Name'].localeCompare(b['Name'], 'kn', {numeric: true, caseFirst: "lower", usage: "sort"}) >= 0);
+                scope.userTopics.sort(function(a, b) {
+                    return (a['Name'].localeCompare(b['Name'], 'kn', {
+                        numeric: true,
+                        caseFirst: "lower",
+                        usage: "sort"
+                    }) >= 0);
                 });
                 console.log(scope.userTopics);
-            }, 
+            },
             function(reason) {
                 alert(reason);
             }
@@ -152,15 +158,14 @@ app.controller('HeaderCtrl', function($scope, $location, UserService, AwsService
     $scope.deleteTopic = function(topicid) {
         var i = 0;
         var curLength = $scope.userTopics.length;
-        while(i < curLength) { // find the correct element
+        while (i < curLength) { // find the correct element
             if ($scope.userTopics[i].Id == topicid) {
                 break;
-            }
-            else{
+            } else {
                 i++;
             }
         }
-        if (i < curLength) {// delete element if found
+        if (i < curLength) { // delete element if found
             $scope.userTopics.splice(i, 1);
         }
     }
