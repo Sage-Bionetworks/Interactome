@@ -24,7 +24,7 @@ app.controller('MainCtrl', function($scope, UserService, AwsService, Recommendat
     $scope.paperLikeStatus = {};
     $scope.selectedAbstracts = [];
 
-    
+
 
     $scope.paginate = function() {
         // Setting currentPage to 0 is a hack to get the recs working on page 1.
@@ -42,6 +42,7 @@ app.controller('MainCtrl', function($scope, UserService, AwsService, Recommendat
         if ($scope.selectedAbstracts.length > 0) {
             //var abstractsChecked = $scope.selectedAbstracts.join();
             //AwsService.postMessageToSNS('arn:aws:sns:us-west-2:005837367462:abstracts_req', abstractsChecked);
+
             RecommendationService.getRecs($scope.selectedAbstracts).then(function(paperList) {
                 $scope.selectedAbstracts.length = 0;
                 $scope.papers.length = 0;
@@ -67,10 +68,10 @@ app.controller('MainCtrl', function($scope, UserService, AwsService, Recommendat
         var uName = UserService.currentUsername();
         AwsService.getDynamoPref(uName).then(function(dbItem) {
 
-            for(var i = 0; i < dbItem.Item.Likes.SS.length; i++) {
+            for (var i = 0; i < dbItem.Item.Likes.SS.length; i++) {
                 $scope.paperLikeStatus[dbItem.Item.Likes.SS[i]] = true;
             }
-            for(var i = 0; i < dbItem.Item.Dislikes.SS.length; i++) {
+            for (var i = 0; i < dbItem.Item.Dislikes.SS.length; i++) {
                 $scope.paperLikeStatus[dbItem.Item.Dislikes.SS[i]] = false;
             }
 
@@ -82,6 +83,6 @@ app.controller('MainCtrl', function($scope, UserService, AwsService, Recommendat
                 $scope.moreThanOnePage = ($scope.numPerPage < $scope.paginationTotalItems);
             });
         });
-        
+
     });
 });
