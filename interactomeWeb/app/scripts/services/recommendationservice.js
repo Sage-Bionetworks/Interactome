@@ -1,52 +1,52 @@
 'use strict';
 /*
-  This service takes care of contacting the reccomendation system.
-
-  Not enough error handling to make this service robust. However, due to the looming eventuallity of a complete rewrite, I don't see the point
-  in making it robust.
+ Sends abstractList to Django server. Future rec computations done out of intermediary Django layer. Results then returned back to web app. 
 */
 angular.module('interactomeApp.RecommendationService', [])
-  .factory('RecommendationService', function RecommendationService($q) {
+
+.factory('RecommendationService', function RecommendationService($q, $http) {
     var service = {
-      // getRecs:
-      //   @abstractList: should be a list of the dynamo Id's
-      //   Returns: a promise which will resolve to an array of hashes that have paper data from dynamo.
-      getRecs: function(papers) {
-          var defered = $q.defer();
-          var paperLength = papers.length;
-          // Scan table for limit number of papers
-          if(paperLength > 0) {
 
+        // getRecs:
+        //   @abstractList: should be a list of the dynamo Id's
+        //   Returns: a promise which will resolve to an array of hashes that have paper data from dynamo.
+        getRecs: function(papers) {
+            var defered = $q.defer();
             var abstractList = [];
-            for(var i = 0; i < paperLength; i++) {
-              abstractList[i] = papers[i].Id;
+            for (var i = 0; i < papers.length; i++) {
+                abstractList[i] = papers[i].Id;
             }
-            
-            var limit = 100 + paperLength; // min of abstracts needed to make sure no duplicates returned
 
-            var paperTable = new AWS.DynamoDB({params: {TableName: "Paper"}});
-            var returnedPapers  = [];
-            paperTable.scan({Limit: limit}, function(err, data) {
-              if(err)
-                console.log(err);
-              else { 
-                var paperId = "";
-                for(var i = 0; i < limit; i++) {
-                  paperId = data.Items[i].Id.S;
-                  if (abstractList.indexOf(paperId) == -1 )// not in list sent in
-                    returnedPapers.push({
-                      Id: paperId, 
-                      Link: data.Items[i].Link.S,
-                      Title: data.Items[i].Title.S.replace(/<[b\sB]+>/g, ''),
-                      Authors: (data.Items[i].Authors.S).split(',')
-                    })
+            $http({
+                method: 'POST',
+                url: 'http://ec2-54-201-190-162.us-west-2.compute.amazonaws.com:8000/recs/',
+                data: {
+                    'list': abstractList,
+                    'numAbstracts': papers.length
                 }
-                defered.resolve(returnedPapers);
-              }
+            }).success(function(data, status, headers, config) {
+                // this callback will be called asynchronously
+                // when the response is available
+                // checks if fault is on Django end 
+                if (data.length != 0)
+                    defered.resolve(data);
+                else
+                    defered.reject("Internal Error");
+
+
+
+            }).error(function(data, status, headers, config) {
+                // called asynchronously if an error occurs
+                // or server returns response with an error status.
+                deferred.reject("Connection failed");
+
             });
-          }
-          return defered.promise;
+
+            return defered.promise;
+
+
         },
+
     };
     return service;
-  });
+});

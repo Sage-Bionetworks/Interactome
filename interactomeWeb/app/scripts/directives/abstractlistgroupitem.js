@@ -1,4 +1,5 @@
 'use strict';
+
 /**
   Represents a single abstract. This uses a list-group-item as the tag.
 
@@ -9,69 +10,75 @@
 **/
 
 angular.module('interactomeApp')
-  .directive('abstractListGroupItem', function () {
-    return {	
-      	restrict: 'E',
+
+.directive('abstractListGroupItem', function() {
+    return {
+        restrict: 'E',
         transclude: true,
         replace: true,
-      	scope: {      	
-          paper: '=',
-          selectedAbstracts: '='
-      	},
-		    controller: ['$rootScope', '$scope', '$http', 'AwsService', 'UserService', function($rootScope, $scope, $http, AwsService, UserService) {
-          $scope.selected = false;
+        scope: {
+            paper: '=',
+            selectedAbstracts: '='
+        },
+        controller: ['$rootScope', '$scope', '$http', 'AwsService', 'UserService',
+            function($rootScope, $scope, $http, AwsService, UserService) {
+                $scope.selected = false;
 
-          $scope.getNames = function() {
-            var temp = "";
-            AwsService.getBatchUser($scope.paper.Authors).then(function(names) {
-              // Ensure the correct order by adding one at a time to the string to display
-              // Authors will be in order and we can't trust AWS to give us the correct order.
-              for(var j = 0; j < $scope.paper.Authors.length; j++) {
-                for(var i = 0; i < names.length; i++) {
-                  if ($scope.paper.Authors[j] == names[i].Id)
-                    temp += (names[i].FirstName + " " + names[i].LastName + ", ");
-                }
-              }
-              $scope.paper.authorData = temp.slice(0, -2);
-            });
-          };
+                $scope.getNames = function() {
+                    var temp = "";
+                    AwsService.getBatchUser($scope.paper.Authors).then(function(names) {
+                        // Ensure the correct order by adding one at a time to the string to display
+                        // Authors will be in order and we can't trust AWS to give us the correct order.
+                        for (var j = 0; j < $scope.paper.Authors.length; j++) {
+                            for (var i = 0; i < names.length; i++) {
+                                if ($scope.paper.Authors[j] == names[i].Id)
+                                    temp += (names[i].FirstName + " " + names[i].LastName + ", ");
+                            }
+                        }
+                        $scope.paper.authorData = temp.slice(0, -2);
+                    });
+                };
 
-          $scope.viewAbstract = function() {
-            $rootScope.$emit('showModal', $scope.paper); 
-          };
+                $scope.viewAbstract = function() {
+                    $rootScope.$emit('showModal', $scope.paper);
+                };
 
-          $scope.selectedClick = function () {
-            $scope.selected = !$scope.selected;
-            if($scope.selected)
-              $scope.selectedAbstracts.push($scope.paper);
-            else {
-              var index = $scope.selectedAbstracts.indexOf($scope.paper);
-              if (index > -1)
-                $scope.selectedAbstracts.splice(index, 1);
+                $scope.selectedClick = function() {
+                    $scope.selected = !$scope.selected;
+                    if ($scope.selected)
+                        $scope.selectedAbstracts.push($scope.paper);
+                    else {
+                        var index = $scope.selectedAbstracts.indexOf($scope.paper);
+                        if (index > -1)
+                            $scope.selectedAbstracts.splice(index, 1);
+                    }
+                };
+
+                var unbind = $rootScope.$on('cancelSelectedAbstracts', function() {
+                    $scope.selected = false;
+                });
+                //Cleanup listener
+                $scope.$on('$destroy', unbind);
+
             }
-          };
+        ],
+        templateUrl: 'scripts/directives/abstractlistgroupitem.html',
 
-          var unbind = $rootScope.$on('cancelSelectedAbstracts', function() { $scope.selected = false; });
-          //Cleanup listener
-          $scope.$on('$destroy', unbind);
-          
-    	}],
-    	templateUrl: 'scripts/directives/abstractlistgroupitem.html',
+        link: function($scope, element, attrs) {
+            $scope.getNames();
+            // Pagination could cause this paper to be reloaded. Check if it's already been clicked.
+            $scope.selected = ($scope.selectedAbstracts.indexOf($scope.paper) > -1);
 
-      link: function ($scope, element, attrs) {
-        $scope.getNames();
-        // Pagination could cause this paper to be reloaded. Check if it's already been clicked.
-        $scope.selected = ($scope.selectedAbstracts.indexOf($scope.paper) > -1);
+            element.draggable({
+                revert: true,
+                appendTo: 'body',
+                zIndex: 5000,
+                cursor: "move",
+                helper: function() {
+                    return $("<div class='abstractDrag list-group-item'><span class='badge'>dragging</span>" + $scope.paper.Title.substring(0, 40) + "...</div>");
+                }
+            }).data("abId", $scope.paper.Id);
+        }
 
-        element.draggable({
-          revert: true, 
-          appendTo: 'body', 
-          zIndex: 5000, 
-          cursor: "move",
-          helper: function() {
-            return $("<div class='abstractDrag list-group-item'><span class='badge'>dragging</span>" + $scope.paper.Title.substring(0, 40) + "...</div>");
-          }
-        }).data("abId", $scope.paper.Id);
-      }
     };
-  });
+});

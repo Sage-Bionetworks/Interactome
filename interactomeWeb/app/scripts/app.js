@@ -25,22 +25,28 @@ app.config(function($httpProvider){
     delete $httpProvider.defaults.headers.common['X-Requested-With'];
 });
 
+app.config(['$httpProvider',
+    function($httpProvider) {
+        $httpProvider.defaults.useXDomain = true;
+        delete $httpProvider.defaults.headers.common['X-Requested-With'];
+    }
+]);
 
 // Sets up main route to main.html when page is first loaded. 
 app.config(
     function($routeProvider, $locationProvider) {
         $routeProvider
-        .when('/', {
-            templateUrl: 'views/main.html',
-            controller: 'MainCtrl'
-        })
-        .when('/searchView', {
-            templateUrl: 'views/searchview.html',
-            controller: 'SearchCtrl'
-        })
-        .otherwise({
-            redirectTo: '/'
-        });
+            .when('/', {
+                templateUrl: 'views/main.html',
+                controller: 'MainCtrl'
+            })
+            .when('/searchView', {
+                templateUrl: 'views/searchview.html',
+                controller: 'SearchCtrl'
+            })
+            .otherwise({
+                redirectTo: '/'
+            });
 
         // Removes hashtags in browsers that support html5.
         // will fall back to hashtags if the browser doesnt.
